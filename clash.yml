@@ -1,0 +1,33 @@
+port: 7890
+socks-port: 7891
+redir-port: 0
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: '0.0.0.0:9090'
+secret: ''
+dns:
+  enable: true
+  ipv6: false
+  listen: 0.0.0.0:53
+  enhanced-mode: redir-host
+  nameserver:
+    - 223.5.5.5
+  fallback:
+    - tls://1.1.1.1:853
+    - tls://1.0.0.1:853
+    - tls://dns.google:853
+Proxy:
+{$Proxy}
+Proxy Group:
+  - { name: {$groupname}, type: select, proxies: ["自动选择", {$proxies}]}
+  - { name: 自动选择, type: url-test, proxies: [{$proxies}], url: http://www.gstatic.com/generate_204, interval: 300 }
+#- { name: fallback, type: fallback, proxies: [{$proxies}], url: http://www.gstatic.com/generate_204, interval: 300 }
+Rule:
+  - DOMAIN-SUFFIX,google.com,{$groupname}
+  - DOMAIN-KEYWORD,google,{$groupname}
+  - DOMAIN,google.com,{$groupname}
+  - DOMAIN-SUFFIX,ad.com,REJECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,{$groupname}
